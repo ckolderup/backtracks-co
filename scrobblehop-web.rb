@@ -47,10 +47,9 @@ end
 
 get '/auth/:name/callback' do
   auth = request.env["omniauth.auth"]
-  User.first_or_create({uid: auth["uid"]}, {created_at: Time.now})
+  User.first_or_create({uid: auth["uid"]})
   user = User.first(uid: auth["uid"])
-  success = user.update(uid: auth["uid"], nickname: auth["info"]["nickname"],
-                        name:  auth["info"]["name"], image: auth["info"]["image"])
+  success = user.update(uid: auth["uid"], nickname: auth["info"]["nickname"])
   session[:user_id] = user.id
   redirect '/'
 end
