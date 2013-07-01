@@ -7,13 +7,13 @@ require 'haml'
 
 DataMapper.setup(:default, ENV['DATABASE_URL'] || "sqlite3://#{Dir.pwd}/scrobblehop-web.db")
 
-require_relative 'user'
 require_relative 'link_source'
+require_relative 'user'
 
 DataMapper.finalize
 DataMapper.auto_upgrade!
 
-LinkSource.first_or_create(name: 'Last.fm', query_url: 'TODO')
+LinkSource.first_or_create(name: 'Last.fm', query_url: 'TODO://%q')
 
 class BackTracks < Sinatra::Application
   use OmniAuth::Strategies::Twitter, ENV['CONSUMER_KEY'], ENV['CONSUMER_SECRET']
@@ -40,6 +40,8 @@ class BackTracks < Sinatra::Application
   get '/account' do
     redirect '/' unless current_user
 
+    @active = current_user.active
+    @current_source = current_user.link_source || LinkSource.first
     @link_sources = LinkSource.all
     haml :account
   end
@@ -47,7 +49,8 @@ class BackTracks < Sinatra::Application
   post '/account' do
     error 400 unless current_user
 
-    @current_user.update(email: params[:email], lastfm_user: params[:username])
+    @current_user.update(email: params[:email], lastfm_user: params[:username],
+                         active: params[:active], link_source: LinkSource.get(params[:links]))
     redirect '/account', 303
   end
 

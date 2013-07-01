@@ -11,15 +11,21 @@
       %legend The Emails
 
       %label.pure-radio{:for => "emails-yes"}
-        %input#email_me{:id => "emails-yes", :type => "radio", :name => "emails", :value => "true"} Send me weekly emails!
+        %input#email_me{:id => "emails-yes", :type => "radio", :name => "active",
+                        :value => "true", :checked => @active || nil} 
+          Send me weekly emails!
       %label.pure-radio{:for => "emails-no"}
-        %input#no_emails{:id => "emails-no", :type => "radio", :name => "emails", :value => "false"} No emails for now, plz
+        %input#no_emails{:id => "emails-no", :type => "radio", :name => "active",
+                         :value => "false", :checked => !@active || nil}
+          No emails for now, plz
 
     %fieldset.pure-group
       %legend Link Me To...
 
       - @link_sources.each do |source|
         %label.pure-radio{:for => "links-#{source.id}"}
-          %input{:id => "links-#{source.id}", :type => "radio", :name => "links", :value => source.id}= source.name
+          %input{:id => "links-#{source.id}", :type => "radio", :name => "links", 
+                 :value => source.id, :checked => @current_source.id == source.id || nil}
+            = source.name
 
     %input.pure-button.pure-input-1-2.notice{:value => "Update", :type => "submit"}
