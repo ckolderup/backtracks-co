@@ -29,7 +29,7 @@ get '/' do
   if current_user
     redirect '/account'
   else
-    haml :home
+    haml :index
   end
 end
 
