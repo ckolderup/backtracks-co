@@ -4,6 +4,4 @@ class User
   property :nickname,    String
   property :email,       String
   property :lastfm_user, String
-  property :created_at,  DateTime
-  property :updated_at,  DateTime
 end

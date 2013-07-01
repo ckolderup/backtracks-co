@@ -34,11 +34,15 @@ get '/' do
 end
 
 get '/account' do
+  redirect '/' unless current_user
   haml :account
 end
 
 post '/account' do
-  #TODO: receive form from account page
+  error 400 unless current_user
+
+  @current_user.update(email: params[:email], lastfm_user: params[:username])
+  redirect '/account', 303
 end
 
 get '/auth/:name/callback' do
