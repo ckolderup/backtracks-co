@@ -1,7 +1,7 @@
 #login
   %form{:action => "/account", :method => "POST"}
     %input{:id => "email", :name => "email",
-           :type => "text" :placeholder => "email address"}= @current_user.email
+           :type => "text", :placeholder => "email address"}= @current_user.email
     %input{:id => "username", :name => "username",
            :type => "text", :placeholder => "last.fm username"}= @current_user.lastfm_user
     %input{:value => "Update", :type => "submit",
