@@ -1,8 +1,31 @@
 .content#login
   %form.pure-form{:action => "/account", :method => "POST"}
     %fieldset.pure-group
+      %legend The Basics
       %input.pure-input-1-2{:id => "email", :name => "email", :type => "text",
-             :placeholder => "email address", :value => @current_user.email}
+                            :placeholder => "email address", :value => @current_user.email}
       %input.pure-input-1-2{:id => "username", :name => "username", :type => "text",
-             :placeholder => "last.fm username", :value => @current_user.lastfm_user}
+                            :placeholder => "last.fm username", :value => @current_user.lastfm_user}
+
+    %fieldset.pure-group
+      %legend The Emails
+
+      %label.pure-radio{:for => "emails-yes"}
+        %input#email_me{:id => "emails-yes", :type => "radio", :name => "active",
+                        :value => "true", :checked => @active || nil} 
+          Send me weekly emails!
+      %label.pure-radio{:for => "emails-no"}
+        %input#no_emails{:id => "emails-no", :type => "radio", :name => "active",
+                         :value => "false", :checked => !@active || nil}
+          No emails for now, plz
+
+    %fieldset.pure-group
+      %legend Link Me To...
+
+      - @link_sources.each do |source|
+        %label.pure-radio{:for => "links-#{source.id}"}
+          %input{:id => "links-#{source.id}", :type => "radio", :name => "links", 
+                 :value => source.id, :checked => @current_source.id == source.id || nil}
+            = source.name
+
     %input.pure-button.pure-input-1-2.notice{:value => "Update", :type => "submit"}

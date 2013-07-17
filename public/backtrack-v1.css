@@ -1,5 +1,30 @@
 body {
-  width: 600px;
+  max-width: 600px;
   margin-top: 40px;
   margin-left: 20%;
+}
+
+h1.title {
+	width: 30%;
+	margin-left: 35%;
+	text-align: center;
+}
+
+h3.description {
+	text-align: justify;
+}
+
+div.act-now {
+	width: 30%;
+	margin-left: 35%;
+}
+
+.pure-form legend {
+	border: 0px;
+	margin-bottom: -5px;
+}
+
+.pure-form .pure-group input[type=radio] {
+	float: left;
+	margin-right: 5px;
 }

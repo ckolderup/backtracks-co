@@ -7,64 +7,74 @@ require 'haml'
 
 DataMapper.setup(:default, ENV['DATABASE_URL'] || "sqlite3://#{Dir.pwd}/scrobblehop-web.db")
 
+require_relative 'link_source'
 require_relative 'user'
 
 DataMapper.finalize
 DataMapper.auto_upgrade!
 
-use OmniAuth::Strategies::Twitter, ENV['CONSUMER_KEY'], ENV['CONSUMER_SECRET']
+LinkSource.first_or_create(name: 'Last.fm', query_url: 'TODO://%q')
 
-configure do
-  set :session_secret, ENV['COOKIE_SECRET']
-  enable :sessions
-end
+class BackTracks < Sinatra::Application
+  use OmniAuth::Strategies::Twitter, ENV['CONSUMER_KEY'], ENV['CONSUMER_SECRET']
 
-helpers do
-  def current_user
-    @current_user ||= User.get(session[:user_id]) if session[:user_id]
+  configure do
+    set :session_secret, ENV['COOKIE_SECRET']
+    enable :sessions
   end
-end
 
-get '/' do
-  if current_user
-    redirect '/account'
-  else
-    haml :index
+  helpers do
+    def current_user
+      @current_user ||= User.get(session[:user_id]) if session[:user_id]
+    end
   end
-end
 
-get '/fetch' do
-  error 403 unless params[:key] = ENV['BACKTRACKS_API']
-  users = User.all.map { |u| { email: u.email, username: u.lastfm_user } }
-  users.to_json
-end
+  get '/fetch' do
+    error 403 unless params[:key] = ENV['BACKTRACKS_API']
+    users = User.all.map { |u| { email: u.email, username: u.lastfm_user } }
+    users.to_json
+  end
 
-get '/account' do
-  redirect '/' unless current_user
-  haml :account
-end
+  get '/' do
+    if current_user
+      redirect '/account'
+    else
+      haml :index
+    end
+  end
 
-post '/account' do
-  error 400 unless current_user
+  get '/account' do
+    redirect '/' unless current_user
 
-  @current_user.update(email: params[:email], lastfm_user: params[:username])
-  redirect '/account', 303
-end
+    @active = current_user.active
+    @current_source = current_user.link_source || LinkSource.first
+    @link_sources = LinkSource.all
+    haml :account
+  end
 
-get '/auth/:name/callback' do
-  auth = request.env["omniauth.auth"]
-  User.first_or_create({uid: auth["uid"]})
-  user = User.first(uid: auth["uid"])
-  success = user.update(uid: auth["uid"], nickname: auth["info"]["nickname"])
-  session[:user_id] = user.id
-  redirect '/'
-end
+  post '/account' do
+    error 400 unless current_user
 
-get '/sign_in' do
-  redirect '/auth/twitter'
-end
+    @current_user.update(email: params[:email], lastfm_user: params[:username],
+                         active: params[:active], link_source: LinkSource.get(params[:links]))
+    redirect '/account', 303
+  end
 
-get '/sign_out' do
-  session[:user_id] = nil
-  redirect '/'
+  get '/auth/:name/callback' do
+    auth = request.env["omniauth.auth"]
+    User.first_or_create({uid: auth["uid"]})
+    user = User.first(uid: auth["uid"])
+    success = user.update(uid: auth["uid"], nickname: auth["info"]["nickname"])
+    session[:user_id] = user.id
+    redirect '/'
+  end
+
+  get '/sign_in' do
+    redirect '/auth/twitter'
+  end
+
+  get '/sign_out' do
+    session[:user_id] = nil
+    redirect '/'
+  end
 end
