@@ -4,6 +4,7 @@ require 'dm-core'
 require 'dm-migrations'
 require 'sinatra'
 require 'haml'
+require 'json'
 
 DataMapper.setup(:default, ENV['DATABASE_URL'] || "sqlite3://#{Dir.pwd}/scrobblehop-web.db")
 
