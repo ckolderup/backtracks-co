@@ -33,6 +33,12 @@ get '/' do
   end
 end
 
+get '/fetch' do
+  error 403 unless params[:key] = ENV['BACKTRACKS_API']
+  users = User.all.map { |u| { email: u.email, username: u.lastfm_user } }
+  users.to_json
+end
+
 get '/account' do
   redirect '/' unless current_user
   haml :account
