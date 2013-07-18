@@ -32,7 +32,7 @@ class BackTracks < Sinatra::Application
 
   get '/fetch' do
     error 403 unless params[:key] = ENV['BACKTRACKS_API']
-    users = User.all.map { |u| { email: u.email, username: u.lastfm_user } }
+    users = User.all(:active => true).map { |u| { email: u.email, username: u.lastfm_user } }
     users.to_json
   end
 
